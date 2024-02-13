@@ -31,7 +31,7 @@ extension ContactGroup {
 		return ContactGroup(
 			id: "",
 			name: "All Contacts",
-			contactIDs: Set(contactsRepository.contacts().map { $0.id }),
+			contactIDs: Set(contactsRepository.contacts.map { $0.id }),
 			colorHex: ""
 		)
 	}

@@ -29,6 +29,8 @@ extension ContactsService {
 			fetchContacts: {
 				let request = CNContactFetchRequest(keysToFetch: keysToFetch.compactMap { $0 as? CNKeyDescriptor })
 				return try await withCheckedThrowingContinuation { continuation in
+					PrintCurrentThread("ContactsService.fetchContacts")
+
 					do {
 						var contacts: [Contact] = []
 						try store.enumerateContacts(with: request) { cnContact, _ in
