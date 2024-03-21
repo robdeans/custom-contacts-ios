@@ -45,8 +45,7 @@ struct ContactListView: View {
 			ProgressView()
 		} else {
 			VStack {
-/*
-Disable until functionality and placement can be better considered
+/*	Disable until functionality and placement can be better considered
 
 				FilterView(
 					filterQueries: viewModel.filterQueries,

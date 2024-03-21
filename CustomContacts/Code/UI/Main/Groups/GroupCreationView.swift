@@ -14,8 +14,12 @@ private enum Layout {
 	static let bottomViewHeight = CGFloat(40)
 }
 
-struct GroupCreationView: View {
-	@Dependency(\.uuid) private var uuid
+struct GroupCreationView: View, Identifiable {
+	var id: String = {
+		@Dependency(\.uuid) var uuid
+		return uuid().uuidString
+	}()
+
 	@Dependency(\.contactsRepository) private var contactsRepository
 
 	@Environment(\.modelContext) private var modelContext
@@ -94,11 +98,5 @@ struct GroupCreationView: View {
 			.frame(maxHeight: .infinity, alignment: .bottom)
 		}
 		.sheet(item: $contactSelectorView) { $0 }
-	}
-}
-
-extension GroupCreationView: Identifiable {
-	var id: String {
-		uuid().uuidString
 	}
 }

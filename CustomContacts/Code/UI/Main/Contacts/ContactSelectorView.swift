@@ -11,7 +11,12 @@ import Dependencies
 import Observation
 import SwiftUI
 
-struct ContactSelectorView: View {
+struct ContactSelectorView: View, Identifiable {
+	var id: String = {
+		@Dependency(\.uuid) var uuid
+		return uuid().uuidString
+	}()
+
 	@Bindable private var viewModel = ViewModel()
 	@Environment(\.dismiss) private var dismiss
 
@@ -52,19 +57,16 @@ struct ContactSelectorView: View {
 				}
 			}
 		}
-	}
-}
-
-extension ContactSelectorView: Identifiable {
-	var id: String {
-		@Dependency(\.uuid) var uuid
-		return uuid().uuidString
+		.task {
+			await viewModel.loadContacts()
+		}
 	}
 }
 
 extension ContactSelectorView {
 	// Could be `private` if not for Xcode warnings re: @Observable
 	@Observable final class ViewModel {
+		@ObservationIgnored @Dependency(\.contactsRepository) private var contactsRepository
 		private var contacts: [Contact] = []
 		var searchText = ""
 		private(set) var error: Error?
@@ -73,16 +75,8 @@ extension ContactSelectorView {
 			contacts.filter(searchText: searchText)
 		}
 
-		init() {
-			Task {
-				// Contacts should already have loaded on earlier screen
-				await loadContacts()
-			}
-		}
-
 		@MainActor func loadContacts(refresh: Bool = false) async {
 			do {
-				@Dependency(\.contactsRepository) var contactsRepository
 				contacts = try await contactsRepository.getAllContacts(refresh)
 			} catch {
 				self.error = error

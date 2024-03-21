@@ -55,4 +55,7 @@
          </FileRef>
       </Group>
    </Group>
+   <FileRef
+      location = "group:CustomContacts.xctestplan">
+   </FileRef>
 </Workspace>

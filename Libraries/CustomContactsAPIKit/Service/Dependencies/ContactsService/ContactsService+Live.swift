@@ -42,7 +42,8 @@ extension ContactsService {
 				}
 			},
 			requestPermissions: {
-				switch CNContactStore.authorizationStatus(for: .contacts) {
+				let contactsAuthorizationStatus = CNContactStore.authorizationStatus(for: .contacts)
+				switch contactsAuthorizationStatus {
 				case .authorized:
 					return true
 				case .notDetermined:
@@ -54,6 +55,7 @@ extension ContactsService {
 				case .restricted, .denied:
 					return false
 				@unknown default:
+					LogWarning("Unknown Contact permissions case: \(contactsAuthorizationStatus)")
 					return false
 				}
 			}

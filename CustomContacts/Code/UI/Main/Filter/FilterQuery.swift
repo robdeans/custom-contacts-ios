@@ -13,7 +13,10 @@ import Observation
 
 @Observable
 final class FilterQuery: Identifiable {
-	let id: String
+	var id: String = {
+		@Dependency(\.uuid) var uuid
+		return uuid().uuidString
+	}()
 
 	var group: ContactGroup
 	var filter = Filter.include
@@ -22,9 +25,6 @@ final class FilterQuery: Identifiable {
 	init(isFirstQuery: Bool) {
 		// First query should be `or` so base group is more inclusive of future clauses
 		self.logic = isFirstQuery ? .or : .and
-
-		@Dependency(\.uuid) var uuid
-		self.id = uuid().uuidString
 
 		group = ContactGroup.allContactsGroup
 	}

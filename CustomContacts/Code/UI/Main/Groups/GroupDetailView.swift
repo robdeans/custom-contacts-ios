@@ -67,7 +67,7 @@ struct GroupDetailView: View {
 			}
 
 			List {
-				ForEach(group.contacts().sorted()) {
+				ForEach(group.contacts(from: contactsRepository).sorted()) {
 					Text($0.displayName)
 				}
 			}

@@ -12,8 +12,6 @@ import SwiftData
 import SwiftUI
 
 struct FilterRowView: View {
-	@Dependency(\.contactsRepository) private var contactsRepository
-
 	@Bindable var filterQuery: FilterQuery
 	let isFirstRow: Bool
 

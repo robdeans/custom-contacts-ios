@@ -1,0 +1,36 @@
+{
+  "configurations" : [
+    {
+      "id" : "AC972E1C-309B-4D2D-93D4-4EFBEFE705ED",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "environmentVariableEntries" : [
+      {
+        "enabled" : false,
+        "key" : "OS_ACTIVITY_MODE",
+        "value" : "${DEBUG_OS_ACTIVITY_MODE}"
+      }
+    ],
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:CustomContacts.xcodeproj",
+      "identifier" : "3DFCFB501E5DA85B00D4A874",
+      "name" : "CustomContacts"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:CustomContacts.xcodeproj",
+        "identifier" : "F4CD70342000044F0013EE7B",
+        "name" : "CustomContactsTests"
+      }
+    }
+  ],
+  "version" : 1
+}

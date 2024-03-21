@@ -19,4 +19,5 @@ extension ContactsService {
 			}
 		)
 	}
+	public static var testValue: ContactsService { .previewValue }
 }

@@ -33,7 +33,9 @@ extension DependencyValues {
 
 extension ContactsRepository: DependencyKey {
 	static var liveValue: Self {
-		@Dependency(\.contactsService) var contactsService
+		/// Apparently this cannot be set _inside_ the `getAllContacts` method because
+		/// this causes the method to not successly override using `withDependencies` in testing
+//		@Dependency(\.contactsService) var contactsService
 
 		// swiftlint:disable identifier_name
 		var _contacts: [Contact] = []
@@ -41,12 +43,13 @@ extension ContactsRepository: DependencyKey {
 
 		return Self(
 			getAllContacts: { refresh in
-				guard refresh else {
+				guard refresh || _contacts.isEmpty else {
 					return _contacts
 				}
+				@Dependency(\.contactsService) var contactsService
 				guard try await contactsService.requestPermissions() else {
 					// Permissions denied state; throw error?
-					return []
+					return _contacts
 				}
 				_contacts = try await contactsService.fetchContacts()
 				contactDictionary = Dictionary(
@@ -60,12 +63,6 @@ extension ContactsRepository: DependencyKey {
 			contacts: { _contacts }
 		)
 	}
-	static var previewValue: Self {
-		Self(
-			getAllContacts: { _ in Contact.mockArray },
-			getContact: { _ in Contact.mock },
-			contacts: { Contact.mockArray }
-		)
-	}
-	static var testValue: ContactsRepository = .liveValue
+	static var previewValue: ContactsRepository { .liveValue }
+	static var testValue: ContactsRepository { .liveValue }
 }
