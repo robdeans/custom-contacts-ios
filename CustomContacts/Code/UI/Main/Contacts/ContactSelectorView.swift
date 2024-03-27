@@ -79,7 +79,7 @@ extension ContactSelectorView {
 		@MainActor func loadContacts(refresh: Bool = false) async {
 			do {
 				@Dependency(\.contactsRepository) var contactsRepository
-				contacts = try await contactsRepository.getAllContacts(refresh)
+				contacts = try await contactsRepository.fetchContacts(refresh: refresh)
 			} catch {
 				self.error = error
 			}

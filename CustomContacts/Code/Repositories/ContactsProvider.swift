@@ -11,7 +11,7 @@ import Dependencies
 
 struct ContactsProvider: Sendable {
 	var sortContacts: @Sendable ([Contact], Contact.SortOption) -> [Contact]
-	var filterContacts: @Sendable (Set<Contact.ID>, [FilterQuery]) -> [Contact]
+	var filterContacts: @Sendable ([Contact], [FilterQuery]) -> [Contact]
 }
 
 extension DependencyValues {
@@ -29,10 +29,11 @@ extension ContactsProvider: DependencyKey {
 				userSettings.setSortOption(sortOption)
 				return contacts.sorted(by: sortOption)
 			},
-			filterContacts: { contactIDs, filterQueries in
+			filterContacts: { contacts, filterQueries in
 				// Given the switch case and usage of Set methods, this could be more efficient.
 				// TODO: re-test with larger contacts data set and
 
+				let contactIDs = Set(contacts.map { $0.id })
 				var filteredContactIDs = Set<Contact.ID>()
 				if !filterQueries.isEmpty {
 					filterQueries.forEach {
@@ -66,9 +67,11 @@ extension ContactsProvider: DependencyKey {
 					filteredContactIDs = contactIDs
 				}
 
-				@Dependency(\.contactsRepository) var contactsRepository
-				return filteredContactIDs
-					.compactMap(contactsRepository.getContact)
+				return contacts
+				// TODO: fix stuff here too
+//				@Dependency(\.contactsRepository) var contactsRepository
+//				return filteredContactIDs
+//					.compactMap(contactsRepository.getContact)
 			}
 		)
 	}

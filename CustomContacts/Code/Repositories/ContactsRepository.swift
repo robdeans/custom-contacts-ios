@@ -12,22 +12,19 @@ import CustomContactsService
 import Dependencies
 
 protocol ContactsRepository: Sendable {
-	var contacts: [Contact] { get }
-	func getAllContacts(_ refresh: Bool) async throws -> [Contact]
-	func getContact(_ id: Contact.ID) -> Contact?
+	func fetchContacts(refresh: Bool) async throws -> [Contact]
+	func getContacts() async -> [Contact]
+	func getContact(_ id: Contact.ID) async -> Contact?
 }
 
-// TODO: remove `@unchecked`
-final class ContactsRepositoryLive: @unchecked Sendable, ContactsRepository {
-	private(set) var contacts: [Contact] = []
+actor ContactsRepositoryLive: ContactsRepository {
+	private var contacts: [Contact] = []
 	private var contactDictionary: [Contact.ID: Contact] = [:]
-
-	init() {}
 
 	/// Returns an array `[Contact]`
 	///
 	/// If `refresh: true` the array is fetched from ContactsService, otherwise the locally stored array is provided
-	func getAllContacts(_ refresh: Bool) async throws -> [Contact] {
+	func fetchContacts(refresh: Bool) async throws -> [Contact] {
 		PrintCurrentThread("getAllContacts")
 		guard refresh || contacts.isEmpty else {
 			return contacts
@@ -51,6 +48,11 @@ final class ContactsRepositoryLive: @unchecked Sendable, ContactsRepository {
 			return contacts
 		}
 		return try await fetchContactsTask.value
+	}
+
+	/// Returns contacts that have already been fetched; no throwing
+	func getContacts() -> [Contact] {
+		contacts
 	}
 
 	/// Fetches a contact from a local dictionary; O(1) lookup time

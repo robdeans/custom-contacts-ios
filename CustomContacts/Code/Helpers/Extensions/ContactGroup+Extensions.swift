@@ -31,14 +31,17 @@ extension ContactGroup {
 		return ContactGroup(
 			id: "",
 			name: "All Contacts",
-			contactIDs: Set(contactsRepository.contacts.map { $0.id }),
+			contactIDs: [], //Set(contactsRepository.getContacts().map { $0.id }),
 			colorHex: ""
 		)
 	}
 
 	func contacts() -> [Contact] {
-		@Dependency(\.contactsRepository) var contactsRepository
-		return self.contactIDs
-			.compactMap { contactsRepository.getContact($0) }
+		[]
+//		@Dependency(\.contactsRepository) var contactsRepository
+//		return self.contactIDs
+//			.compactMap { await contactsRepository.getContact($0) }
 	}
 }
+
+// TODO: fix stuff here... getContacts()

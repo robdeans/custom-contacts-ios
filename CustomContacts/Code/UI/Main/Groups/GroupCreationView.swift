@@ -17,49 +17,38 @@ private enum Layout {
 
 @MainActor
 struct GroupCreationView: View {
-	@Dependency(\.contactsRepository) private var contactsRepository
-
-	@Environment(\.modelContext) private var modelContext
 	@Environment(\.dismiss) private var dismiss
-
-	@State private var name = ""
-	@State private var color = Color.random
-	@State private(set) var selectedContactIDs = Set<Contact.ID>()
-
+	@Bindable private var viewModel = ViewModel()
 	@State private var contactSelectorView: ContactSelectorView?
-
-	@State private var showError = false
 
 	var body: some View {
 		ZStack {
 			VStack(spacing: 0) {
 				Group {
 					ColorPicker(
-						selection: $color,
+						selection: $viewModel.color,
 						supportsOpacity: true,
 						label: {
-							TextField(Localizable.Groups.Edit.groupName, text: $name)
+							TextField(Localizable.Groups.Edit.groupName, text: $viewModel.name)
 								.autocorrectionDisabled()
-								.foregroundStyle(color)
+								.foregroundStyle(viewModel.color)
 								.fontWeight(.semibold)
 						}
 					)
 					.padding(.vertical, Constants.UI.Padding.default)
 
 					Button(Localizable.Groups.Edit.addRemove) {
-						contactSelectorView = ContactSelectorView(selectedContactIDs: selectedContactIDs) {
-							selectedContactIDs = $0
+						contactSelectorView = ContactSelectorView(selectedContactIDs: viewModel.selectedContactIDs) { contactIDs in
+							Task {
+								await viewModel.updateSelectedContacts(ids: contactIDs)
+							}
 						}
 					}
 				}
 				.padding(Constants.UI.Padding.default)
 
 				List {
-					ForEach(
-						selectedContactIDs
-							.compactMap { contactsRepository.getContact($0) }
-							.sorted(by: { $0.displayName < $1.displayName })
-					) {
+					ForEach(viewModel.selectedContacts) {
 						Text($0.displayName)
 					}
 				}
@@ -77,7 +66,9 @@ struct GroupCreationView: View {
 				)
 
 				Button(
-					action: createGroup,
+					action: {
+						viewModel.createGroup(onCompletion: { dismiss() })
+					},
 					label: {
 						Text(Localizable.Common.Actions.save)
 							.frame(maxWidth: .infinity)
@@ -88,29 +79,6 @@ struct GroupCreationView: View {
 			.frame(maxHeight: .infinity, alignment: .bottom)
 		}
 		.sheet(item: $contactSelectorView) { $0 }
-	}
-
-	/// Saves `ContactGroup` on main thread as this is a light data load
-	/// and action is immediately related to user actions
-	private func createGroup() {
-		Task(priority: .userInitiated) {
-			PrintCurrentThread("createGroup")
-			do {
-				let container = modelContext.container
-				let handler = ContactGroupHandler(modelContainer: container)
-
-				let groupID = try await handler.createGroup(
-					name: name,
-					contactIDs: selectedContactIDs,
-					colorHex: color.toHex ?? ""
-				)
-				LogInfo("Group created: \(groupID)")
-				dismiss()
-			} catch {
-				LogError("Group creation failed: \(error.localizedDescription)")
-				showError = true
-			}
-		}
 	}
 }
 

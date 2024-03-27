@@ -49,7 +49,7 @@ extension ContactListView {
 
 			do {
 				@Dependency(\.contactsRepository) var contactsRepository
-				contacts = try await contactsRepository.getAllContacts(refresh)
+				contacts = try await contactsRepository.fetchContacts(refresh: refresh)
 			} catch {
 				self.error = error
 			}
@@ -64,8 +64,7 @@ extension ContactListView.ViewModel {
 		filterQueries: [FilterQuery]
 	) -> [(String, [Contact])] {
 		@Dependency(\.contactsProvider) var contactsProvider
-		let contactIDs = Set(contacts.map { $0.id })
-		let contactsDisplayable = contactsProvider.filterContacts(contactIDs, filterQueries)
+		let contactsDisplayable = contactsProvider.filterContacts(contacts, filterQueries)
 			.filter(searchText: searchText)
 
 		var valueDictionary: [String: [Contact]] = [:]
